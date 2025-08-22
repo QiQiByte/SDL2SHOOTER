@@ -4,7 +4,7 @@
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 
-int main() {
+int main(int , char **) {
     std::cout << "Hello, World!" << std::endl;
     return 0;
 }
