@@ -29,6 +29,8 @@ public:
     // 处理事件
     void handleEvents(SDL_Event * event) override;
 
+    void keyboardControls();
+
 private:
     Game &game; // 引用游戏实例
     Player player; // 玩家对象

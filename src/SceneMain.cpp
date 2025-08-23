@@ -19,6 +19,7 @@ void SceneMain::init()
 
 void SceneMain::update()
 {
+    keyboardControls();
 }
 
 void SceneMain::render()
@@ -44,4 +45,24 @@ SceneMain::SceneMain() : game(Game::getInstance())
 }
 SceneMain::~SceneMain()
 {
+}
+void SceneMain::keyboardControls()
+{
+    auto keyboardState = SDL_GetKeyboardState(NULL);
+    if (keyboardState[SDL_SCANCODE_W]) {
+        player.position.y -= 0.1;
+        if (player.position.y < 0) player.position.y = 0;
+    }
+    if (keyboardState[SDL_SCANCODE_S]) {
+        player.position.y += 0.1;
+        if (player.position.y > game.getWindowHeight() - player.height) player.position.y = game.getWindowHeight() - player.height;
+    }
+    if (keyboardState[SDL_SCANCODE_A]) {
+        player.position.x -= 0.1;
+        if (player.position.x < 0) player.position.x = 0;
+    }
+    if (keyboardState[SDL_SCANCODE_D]) {
+        player.position.x += 0.1;
+        if (player.position.x > game.getWindowWidth() - player.width) player.position.x = game.getWindowWidth() - player.width;
+    }
 }
