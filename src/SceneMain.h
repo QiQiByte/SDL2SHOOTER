@@ -4,12 +4,15 @@
 #include "Scene.h"
 #include "Object.h"
 
+// 前向声明Game类，避免循环依赖，在cpp文件中包含Game.h
+class Game;
+
 
 // 主场景类，继承自Scene
 class SceneMain : public Scene {
 public:
-    SceneMain() = default;
-    ~SceneMain() override = default;
+    SceneMain();
+    ~SceneMain();
 
     // 初始化场景
     void init() override;
@@ -27,6 +30,7 @@ public:
     void handleEvents(SDL_Event * event) override;
 
 private:
+    Game &game; // 引用游戏实例
     Player player; // 玩家对象
 };
 

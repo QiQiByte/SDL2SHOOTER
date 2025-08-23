@@ -33,11 +33,21 @@ void Game::init()
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Could not create renderer: %s", SDL_GetError());
         isRunning = false;
         return;
-    }   
+    }
+
+    //初始化SDL_image
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Could not initialize SDL_image: %s", IMG_GetError());
+        isRunning = false;
+        return;
+    }
 
 
     isRunning = true;
     currentScene = new SceneMain(); // 创建主场景实例
+    if (currentScene) {
+        currentScene->init(); // 初始化主场景
+    }
 }
 
 
@@ -74,6 +84,7 @@ void Game::clean()
         SDL_DestroyWindow(window);
         window = nullptr;
     }
+    IMG_Quit();
     SDL_Quit();
 }
 

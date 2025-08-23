@@ -6,9 +6,8 @@
 int main(int , char **) {
     std::cout << "Hello, World!" << std::endl;
 
-    Game game;
+    Game &game = Game::getInstance();
     game.init();
     game.run();
-    game.clean();
     return 0;
 }
