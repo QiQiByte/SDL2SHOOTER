@@ -13,6 +13,8 @@ Game::~Game()
 
 void Game::init()
 {
+    frameTime = 1000 / FPS; // 每帧的时间，单位毫秒
+
     //SDL初始化
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         // 初始化失败，处理错误
@@ -45,9 +47,8 @@ void Game::init()
 
     isRunning = true;
     currentScene = new SceneMain(); // 创建主场景实例
-    if (currentScene) {
-        currentScene->init(); // 初始化主场景
-    }
+    currentScene->init(); // 初始化主场景
+
 }
 
 
@@ -55,15 +56,19 @@ void Game::init()
 void Game::run()
 {
     while (isRunning) {
+        Uint32 startTime = SDL_GetTicks(); // 获取当前时间，单位毫秒
+
         SDL_Event event;
-
         handleEvents(&event); // 处理事件
-
-        update(); // 更新游戏状态
-
+        update(deltaTime); // 更新游戏状态
         render(); // 渲染当前场景
-        
-       
+
+        Uint32 elapsedTime = SDL_GetTicks() - startTime; // 计算本帧耗时
+        if (elapsedTime < frameTime) {
+            SDL_Delay(frameTime - elapsedTime); // 延时以维持稳定帧率
+            deltaTime = frameTime / 1000.0f; // 计算每帧的时间，单位秒
+        }
+        deltaTime = (SDL_GetTicks() - startTime) / 1000.0f; // 计算每帧的时间，单位秒
     }
  
     
@@ -113,10 +118,10 @@ void Game::handleEvents(SDL_Event* event)
         }
 }
 
-void Game::update()
+void Game::update(float deltaTime)
 {
     if (currentScene) {
-        currentScene->update();
+        currentScene->update(deltaTime);
     }
 }   
 

@@ -14,7 +14,7 @@ public:
     virtual void init() = 0;
 
     // 更新场景状态
-    virtual void update() = 0;
+    virtual void update(float deltaTime) = 0;
 
     // 渲染场景
     virtual void render() = 0;

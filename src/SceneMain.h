@@ -16,18 +16,16 @@ public:
 
     // 初始化场景
     void init() override;
-
     // 更新场景状态
-    void update() override;
-
+    void update(float deltaTime) override;
     // 渲染场景
     void render() override;
-
     // 清理场景资源
     void clean() override;
-
     // 处理事件
     void handleEvents(SDL_Event * event) override;
+
+    void keyboardControls(float deltaTime);
 
 private:
     Game &game; // 引用游戏实例

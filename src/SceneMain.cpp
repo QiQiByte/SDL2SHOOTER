@@ -17,8 +17,9 @@ void SceneMain::init()
     player.position.y = game.getWindowHeight() - player.height;
 }
 
-void SceneMain::update()
+void SceneMain::update(float deltaTime)
 {
+    keyboardControls(deltaTime);
 }
 
 void SceneMain::render()
@@ -44,4 +45,25 @@ SceneMain::SceneMain() : game(Game::getInstance())
 }
 SceneMain::~SceneMain()
 {
+}
+void SceneMain::keyboardControls(float deltaTime)
+{
+    auto keyboardState = SDL_GetKeyboardState(NULL);
+
+    if (keyboardState[SDL_SCANCODE_W]) {
+        player.position.y -= deltaTime * player.speed; // 乘以速度因子
+        if (player.position.y < 0) player.position.y = 0;
+    }
+    if (keyboardState[SDL_SCANCODE_S]) {
+        player.position.y += deltaTime * player.speed;
+        if (player.position.y > game.getWindowHeight() - player.height) player.position.y = game.getWindowHeight() - player.height;
+    }
+    if (keyboardState[SDL_SCANCODE_A]) {
+        player.position.x -= deltaTime * player.speed;
+        if (player.position.x < 0) player.position.x = 0;
+    }
+    if (keyboardState[SDL_SCANCODE_D]) {
+        player.position.x += deltaTime * player.speed;
+        if (player.position.x > game.getWindowWidth() - player.width) player.position.x = game.getWindowWidth() - player.width;
+    }
 }

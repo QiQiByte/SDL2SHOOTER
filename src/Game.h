@@ -20,10 +20,11 @@ public:
     void init();
     void run();
     void clean();
+
     void changeScene(Scene* newScene);
 
     void handleEvents(SDL_Event* event);
-    void update();
+    void update(float deltaTime);
     void render();
 
     SDL_Renderer* getRenderer() const { return renderer; }
@@ -45,7 +46,11 @@ private:
     SDL_Renderer* renderer = nullptr;
     const int windowWidth = 600;
     const int windowHeight = 800;
-    
+
+    int FPS = 120; // 目标帧率
+    Uint32 frameTime; // 每帧的时间，单位毫秒
+    float deltaTime; // 每帧的时间，单位秒
+
 };
 
 #endif
