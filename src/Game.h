@@ -27,8 +27,8 @@ private:
     Scene* currentScene = nullptr; // 当前场景指针
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
-    const int windowWidth = 600;
-    const int windowHeight = 800;
+    const int windowWidth = 500;
+    const int windowHeight = 700;
     
 };
 

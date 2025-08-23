@@ -2,6 +2,8 @@
 #define SCENEMAIN_H
 
 #include "Scene.h"
+#include "Object.h"
+
 
 // 主场景类，继承自Scene
 class SceneMain : public Scene {
@@ -23,6 +25,9 @@ public:
 
     // 处理事件
     void handleEvents(SDL_Event * event) override;
+
+private:
+    Player player; // 玩家对象
 };
 
 

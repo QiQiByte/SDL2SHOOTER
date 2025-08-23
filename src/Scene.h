@@ -2,6 +2,7 @@
 #define SCENE_H
 
 //场景类基类
+
 #include <SDL.h>
 
 class Scene {

@@ -1,4 +1,5 @@
 #include "SceneMain.h"
+#include <SDL_image.h>
 
 void SceneMain::init()
 {
