@@ -3,6 +3,8 @@
 
 #include "Scene.h"
 #include "Object.h"
+#include <list>
+
 
 // 前向声明Game类，避免循环依赖，在cpp文件中包含Game.h
 class Game;
@@ -26,10 +28,18 @@ public:
     void handleEvents(SDL_Event * event) override;
 
     void keyboardControls(float deltaTime);
+    void shootPlayer();
+    void updateProjectilesPlayer(float deltaTime);
+    void renderProjectilesPlayer();
 
 private:
     Game &game; // 引用游戏实例
     Player player; // 玩家对象
+
+    //创建玩家子弹模板
+    ProjectilePlayer projectilePlayerTemplate;
+
+    std::list<ProjectilePlayer*> projectilesPlayer; // 玩家子弹列表, 使用指针方便管理,防止堆栈数据过多
 };
 
 
