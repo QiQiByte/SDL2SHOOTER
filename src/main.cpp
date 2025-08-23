@@ -1,10 +1,14 @@
 #include <iostream>
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
-#include <SDL_mixer.h>
+
+
+#include "Game.h"
 
 int main(int , char **) {
     std::cout << "Hello, World!" << std::endl;
+
+    Game game;
+    game.init();
+    game.run();
+    game.clean();
     return 0;
 }
