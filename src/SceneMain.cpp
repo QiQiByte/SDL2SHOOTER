@@ -57,6 +57,17 @@ void SceneMain::init()
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load enemy projectile texture: %s", IMG_GetError());
         return;// 注意这里没有return，继续执行 init函数
     }
+
+    // 初始化爆炸模板
+    explosionTemplate.texture = IMG_LoadTexture(game.getRenderer(), "assets/effect/explosion.png");
+    SDL_QueryTexture(explosionTemplate.texture, NULL, NULL, &explosionTemplate.width, &explosionTemplate.height);
+    explosionTemplate.totalFrames = explosionTemplate.width / explosionTemplate.height; // 爆炸图是水平排列的帧
+//    explosionTemplate.height /= 3; // 缩小高度
+    explosionTemplate.width = explosionTemplate.height; // 保持宽高比1:1
+    if (!explosionTemplate.texture) {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load explosion texture: %s", IMG_GetError());
+        return;// 注意这里没有return，继续执行 init函数
+    }
 }
 
 void SceneMain::update(float deltaTime)
@@ -68,6 +79,8 @@ void SceneMain::update(float deltaTime)
     updateEnemies(deltaTime);
     updateProjectilesEnemy(deltaTime);
     updatePlayer(deltaTime);
+    updateExplosions(deltaTime);
+
 
 }
 
@@ -87,6 +100,9 @@ void SceneMain::render()
 
     // 渲染敌人子弹
     renderProjectilesEnemy();
+
+    // 渲染爆炸
+    renderExplosions();
 }
 
 void SceneMain::clean()
@@ -140,6 +156,21 @@ void SceneMain::clean()
         SDL_DestroyTexture(projectileEnemyTemplate.texture);
         projectileEnemyTemplate.texture = nullptr;
     }
+
+    // 清理爆炸容器
+    for (auto explosion : explosions) {
+        if (explosion != nullptr) {
+            delete explosion;
+        }
+    }
+    explosions.clear();
+    // 清理爆炸模板资源
+    if (explosionTemplate.texture) {
+        SDL_DestroyTexture(explosionTemplate.texture);
+        explosionTemplate.texture = nullptr;
+    }
+
+
 
 
 }
@@ -352,6 +383,13 @@ void SceneMain::renderProjectilesEnemy()
 }
 void SceneMain::explodeEnemy(Enemy *enemy)
 {
+    auto currentTime = SDL_GetTicks();
+    Explosion* explosion = new Explosion(explosionTemplate); // 使用模板创建新爆炸(拷贝构造)
+    explosion->position.x = enemy->position.x + enemy->width / 2 - explosion->width / 2; // 爆炸在敌机中间位置
+    explosion->position.y = enemy->position.y + enemy->height / 2 - explosion->height / 2; // 爆炸在敌机中间位置
+    explosion->startTime = currentTime;
+    explosions.push_back(explosion); // 添加到爆炸列表
+    // 这里可以添加播放爆炸音效的代码
     delete enemy; // 释放内存
 }
 void SceneMain::updatePlayer(float deltaTime)
@@ -360,8 +398,15 @@ void SceneMain::updatePlayer(float deltaTime)
 
     if (player.currentHealth <= 0) {
         std::cout << "Player destroyed! Game Over!" << std::endl;
+        auto currentTime = SDL_GetTicks();
         isGameOver = true;
         // 这里可以添加游戏结束的逻辑，比如切换到游戏结束场景
+        auto explosion = new Explosion(explosionTemplate); // 使用模板创建新爆炸(拷贝构造)
+        explosion->position.x = player.position.x + player.width / 2 - explosion->width / 2; // 爆炸在玩家中间位置
+        explosion->position.y = player.position.y + player.height / 2 - explosion->height / 2; // 爆炸在玩家中间位置
+        explosion->startTime = currentTime;
+        explosions.push_back(explosion); // 添加到爆炸列表
+        return;
     }
 
 
@@ -374,5 +419,28 @@ void SceneMain::updatePlayer(float deltaTime)
             enemy->currentHealth = 0; // 碰撞后敌机也被摧毁
             std::cout << "Player hit by enemy! Current health: " << player.currentHealth << std::endl;
         }
+    }
+}
+void SceneMain::updateExplosions(float deltaTime)
+{
+    auto currentTime = SDL_GetTicks();
+    for (auto it = explosions.begin(); it != explosions.end(); ) {
+        Explosion* explosion = *it;
+        explosion->currentFrame = (currentTime - explosion->startTime) * explosion->FPS / 1000; // 计算当前帧
+        if (explosion->currentFrame >= explosion->totalFrames) {
+            // 爆炸动画结束，删除爆炸对象
+            delete explosion;
+            it = explosions.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+void SceneMain::renderExplosions()
+{
+    for (auto explosion : explosions) {
+        SDL_Rect srcRect = { explosion->currentFrame * explosion->width, 0, explosion->width, explosion->height };
+        SDL_Rect destRect = { static_cast<int>(explosion->position.x), static_cast<int>(explosion->position.y), explosion->width, explosion->height };
+        SDL_RenderCopy(game.getRenderer(), explosion->texture, &srcRect, &destRect);
     }
 }

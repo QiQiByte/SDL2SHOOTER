@@ -42,6 +42,8 @@ public:
     void updateProjectilesEnemy(float deltaTime);
     void renderProjectilesEnemy();
     void explodeEnemy(Enemy* enemy);
+    void updateExplosions(float deltaTime);
+    void renderExplosions();
 
 private:
     Game &game; // 引用游戏实例
@@ -54,6 +56,8 @@ private:
     Enemy enemyTemplate;
     //创建敌机子弹模板
     ProjectileEnemy projectileEnemyTemplate;
+    //创建爆炸模板
+    Explosion explosionTemplate;
 
 
     //创建玩家子弹容器（列表）
@@ -62,6 +66,9 @@ private:
     std::list<Enemy*> enemies;
     //创建敌机子弹容器（列表）
     std::list<ProjectileEnemy*> projectilesEnemy;
+    //创建爆炸容器（列表）
+    std::list<Explosion*> explosions;
+
 
     std::mt19937 gen; // 随机数生成器
     std::uniform_real_distribution<float> dis; // 随机数分布器（均匀分布）
