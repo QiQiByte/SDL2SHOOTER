@@ -33,7 +33,7 @@ struct Enemy
     int height = 0;
     int speed = 100;
 
-    Uint32 coolDown = 1000; // 冷却时间，单位毫秒
+    Uint32 coolDown = 2000; // 冷却时间，单位毫秒
     Uint32 lastShotTime = 0; // 上次射击时间
 };
 

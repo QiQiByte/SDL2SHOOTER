@@ -218,7 +218,7 @@ void SceneMain::renderProjectilesPlayer()
 }
 void SceneMain::spawnEnemy()
 {
-    if (dis(gen) > 1 / 120.0f) {
+    if (dis(gen) > 1 / 240.0f) {
         return; // 以1/60的概率生成敌人
     }
     Enemy* enemy = new Enemy(enemyTemplate); // 使用模板创建新敌人(拷贝构造)
@@ -260,7 +260,7 @@ void SceneMain::shootEnemy(Enemy *enemy)
 {
     ProjectileEnemy* projectile = new ProjectileEnemy(projectileEnemyTemplate); // 使用模板创建新子弹(拷贝构造)
     projectile->position.x = enemy->position.x + enemy->width / 2 - projectile->width / 2; // 子弹从敌机中间位置发射
-    projectile->position.y = enemy->position.y + enemy->height / 2; // 子弹从敌机底部发射
+    projectile->position.y = enemy->position.y + enemy->height - 5; // 子弹从敌机底部发射
     projectile->direction = getDirection(enemy); // 获取子弹方向
     projectilesEnemy.push_back(projectile); // 添加到子弹列表
 }
@@ -305,7 +305,7 @@ void SceneMain::renderProjectilesEnemy()
         SDL_Rect projectileRect = { static_cast<int>(projectile->position.x), static_cast<int>(projectile->position.y), projectile->width, projectile->height };
 //        SDL_RenderCopy(game.getRenderer(), projectile->texture, NULL, &projectileRect);
         // 计算旋转角度
-        float angle = atan2(projectile->direction.y, projectile->direction.x) * 180.0f / 3.14159265f + 90.0f; // 加90度使子弹纹理朝上
+        float angle = atan2(projectile->direction.y, projectile->direction.x) * 180.0f / 3.14159265f - 90.0f; // 加90度使子弹纹理朝上
         SDL_RenderCopyEx(game.getRenderer(), projectile->texture, NULL, &projectileRect, angle, NULL, SDL_FLIP_NONE);
     }
 }
