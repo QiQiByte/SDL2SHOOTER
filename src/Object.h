@@ -13,6 +13,7 @@ struct Player
 
     Uint32 coolDown = 100; // 冷却时间，单位毫秒
     Uint32 lastShotTime = 0; // 上次射击时间
+    int currentHealth = 3;
 
 };
 
@@ -23,6 +24,8 @@ struct ProjectilePlayer
     int width = 0;
     int height = 0;
     int speed = 400;
+
+    int damage = 1;
 };
 
 struct Enemy
@@ -35,6 +38,7 @@ struct Enemy
 
     Uint32 coolDown = 2000; // 冷却时间，单位毫秒
     Uint32 lastShotTime = 0; // 上次射击时间
+    int currentHealth = 2;
 };
 
 struct ProjectileEnemy
@@ -45,6 +49,8 @@ struct ProjectileEnemy
     int width = 0;
     int height = 0;
     int speed = 500;
+
+    int damage = 1;
 };
 
 

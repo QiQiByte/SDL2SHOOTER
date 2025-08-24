@@ -203,7 +203,23 @@ void SceneMain::updateProjectilesPlayer(float deltaTime)
             it = projectilesPlayer.erase(it);
             // SDL_Log("player projectile removed");
         }else{
-            ++it;
+            bool collisionDetected = false;
+            for (auto enemy : enemies ) {
+                SDL_Rect enemyRect = { static_cast<int>(enemy->position.x), static_cast<int>(enemy->position.y), enemy->width, enemy->height };
+                SDL_Rect projectileRect = { static_cast<int>(projectile->position.x), static_cast<int>(projectile->position.y), projectile->width, projectile->height };
+                if (SDL_HasIntersection(&enemyRect, &projectileRect)) {
+                    // 处理碰撞，例如减少敌人生命值，删除子弹等
+                    enemy->currentHealth -= projectile->damage;
+                    // 删除子弹
+                    delete projectile;
+                    it = projectilesPlayer.erase(it);
+                    collisionDetected = true;
+                    break;
+                }
+            }
+            if (!collisionDetected) {
+                ++it;
+            }
         }
 
     }
@@ -244,7 +260,13 @@ void SceneMain::updateEnemies(float deltaTime)
 
                 enemy->lastShotTime = currentTime;
             }
-            ++it;
+            // 如果敌机生命值小于等于0，则删除
+            if (enemy->currentHealth <= 0) {
+                explodeEnemy(enemy); // 播放爆炸动画等效果
+                it = enemies.erase(it);
+            } else{
+                ++it;
+            }
         }
 
     }
@@ -308,4 +330,8 @@ void SceneMain::renderProjectilesEnemy()
         float angle = atan2(projectile->direction.y, projectile->direction.x) * 180.0f / 3.14159265f - 90.0f; // 加90度使子弹纹理朝上
         SDL_RenderCopyEx(game.getRenderer(), projectile->texture, NULL, &projectileRect, angle, NULL, SDL_FLIP_NONE);
     }
+}
+void SceneMain::explodeEnemy(Enemy *enemy)
+{
+    delete enemy; // 释放内存
 }

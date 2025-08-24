@@ -40,6 +40,7 @@ public:
     SDL_FPoint getDirection(Enemy* enemy);
     void updateProjectilesEnemy(float deltaTime);
     void renderProjectilesEnemy();
+    void explodeEnemy(Enemy* enemy);
 
 private:
     Game &game; // 引用游戏实例
