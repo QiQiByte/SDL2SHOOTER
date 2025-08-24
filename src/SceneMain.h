@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "Object.h"
 #include <list>
+#include <random>
 
 
 // 前向声明Game类，避免循环依赖，在cpp文件中包含Game.h
@@ -32,14 +33,28 @@ public:
     void updateProjectilesPlayer(float deltaTime);
     void renderProjectilesPlayer();
 
+    void spawnEnemy();
+    void updateEnemies(float deltaTime);
+    void renderEnemies();
+
 private:
     Game &game; // 引用游戏实例
     Player player; // 玩家对象
 
     //创建玩家子弹模板
     ProjectilePlayer projectilePlayerTemplate;
+    //创建敌机模板
+    Enemy enemyTemplate;
 
+
+    //创建玩家子弹容器（列表）
     std::list<ProjectilePlayer*> projectilesPlayer; // 玩家子弹列表, 使用指针方便管理,防止堆栈数据过多
+    //创建敌机容器（列表）
+    std::list<Enemy*> enemies;
+
+    std::mt19937 gen; // 随机数生成器
+    std::uniform_real_distribution<float> dis; // 随机数分布器（均匀分布）
+
 };
 
 

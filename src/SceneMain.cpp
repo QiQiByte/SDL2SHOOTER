@@ -5,6 +5,13 @@
 
 void SceneMain::init()
 {
+    std::random_device rd; // 获取随机数种子
+    gen = std::mt19937(rd()); // 初始化随机数生成器
+    dis = std::uniform_real_distribution<float>(0.0f, 1.0f); // 均匀分布在0到1之间
+    // 使用随机数：
+    // float randomValue = dis(gen);
+
+
     // 初始化玩家
     player.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/SpaceShip.png");
     if (!player.texture) {
@@ -28,12 +35,27 @@ void SceneMain::init()
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load projectile texture: %s", IMG_GetError());
         return; // 注意这里没有return，继续执行 init函数
     }
+
+    // 初始化敌机模板
+    enemyTemplate.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/insect-2.png");
+    SDL_QueryTexture(enemyTemplate.texture, NULL, NULL, &enemyTemplate.width, &enemyTemplate.height);
+    enemyTemplate.width /= 3; // 缩小宽度
+    enemyTemplate.height /= 3; // 缩小高度
+    enemyTemplate.speed = 100;
+    if (!enemyTemplate.texture) {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load enemy texture: %s", IMG_GetError());
+        return;// 注意这里没有return，继续执行 init函数
+    }
 }
 
 void SceneMain::update(float deltaTime)
 {
+    //这里的函数每一帧都会调用一次；生成（按键/逻辑）-更新-渲染-清理
     keyboardControls(deltaTime);
     updateProjectilesPlayer(deltaTime);
+     spawnEnemy(); // 生成敌人
+    updateEnemies(deltaTime);
+
 }
 
 void SceneMain::render()
@@ -41,20 +63,38 @@ void SceneMain::render()
     // 渲染玩家子弹
     renderProjectilesPlayer();
 
-
-
     // 渲染玩家
     SDL_Rect playerRect = { static_cast<int>(player.position.x), static_cast<int>(player.position.y), player.width, player.height };
     SDL_RenderCopy(game.getRenderer(), player.texture, NULL, &playerRect);
+
+    // 渲染敌人
+    renderEnemies();
 }
 
 void SceneMain::clean()
 {
-    // 清理容器
+    // 清理子弹容器
     for (auto projectile : projectilesPlayer) {
         delete projectile;
     }
     projectilesPlayer.clear();
+    // 清理敌机容器
+    for (auto enemy : enemies) {
+        delete enemy;
+    }
+
+
+    enemies.clear();
+    // 清理敌机模板资源
+    if (enemyTemplate.texture) {
+        SDL_DestroyTexture(enemyTemplate.texture);
+        enemyTemplate.texture = nullptr;
+    }
+    // 清理玩家子弹模板资源
+    if (projectilePlayerTemplate.texture) {
+        SDL_DestroyTexture(projectilePlayerTemplate.texture);
+        projectilePlayerTemplate.texture = nullptr;
+    }
 
 
     // 清理玩家资源
@@ -144,5 +184,39 @@ void SceneMain::renderProjectilesPlayer()
     for (auto projectile : projectilesPlayer) {
         SDL_Rect projectileRect = { static_cast<int>(projectile->position.x), static_cast<int>(projectile->position.y), projectile->width, projectile->height };
         SDL_RenderCopy(game.getRenderer(), projectile->texture, NULL, &projectileRect);
+    }
+}
+void SceneMain::spawnEnemy()
+{
+    if (dis(gen) > 1 / 60.0f) {
+        return; // 以1/60的概率生成敌人
+    }
+    Enemy* enemy = new Enemy(enemyTemplate); // 使用模板创建新敌人(拷贝构造)
+    enemy->position.x = dis(gen) * (game.getWindowWidth() - enemy->width); // 随机水平位置
+    enemy->position.y = -enemy->height; // 从屏幕上方外侧生成
+    enemies.push_back(enemy); // 添加到敌人列表
+}
+void SceneMain::updateEnemies(float deltaTime)
+{
+    int margin = 32; // 敌机超出屏幕边界外的额外距离
+    for (auto it = enemies.begin(); it != enemies.end(); ) {
+        Enemy* enemy = *it;
+        enemy->position.y += enemy->speed * deltaTime; // 更新敌机位置
+        // 如果敌机超出屏幕下方边界，则删除
+        if (enemy->position.y > game.getWindowHeight() + margin) {
+            delete enemy; // 释放内存
+            it = enemies.erase(it);
+            // SDL_Log("enemy removed");
+        }else{
+            ++it;
+        }
+
+    }
+}
+void SceneMain::renderEnemies()
+{
+    for (auto enemy : enemies) {
+        SDL_Rect enemyRect = { static_cast<int>(enemy->position.x), static_cast<int>(enemy->position.y), enemy->width, enemy->height };
+        SDL_RenderCopy(game.getRenderer(), enemy->texture, NULL, &enemyRect);
     }
 }
