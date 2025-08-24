@@ -36,6 +36,10 @@ public:
     void spawnEnemy();
     void updateEnemies(float deltaTime);
     void renderEnemies();
+    void shootEnemy(Enemy* enemy);
+    SDL_FPoint getDirection(Enemy* enemy);
+    void updateProjectilesEnemy(float deltaTime);
+    void renderProjectilesEnemy();
 
 private:
     Game &game; // 引用游戏实例
@@ -45,12 +49,16 @@ private:
     ProjectilePlayer projectilePlayerTemplate;
     //创建敌机模板
     Enemy enemyTemplate;
+    //创建敌机子弹模板
+    ProjectileEnemy projectileEnemyTemplate;
 
 
     //创建玩家子弹容器（列表）
     std::list<ProjectilePlayer*> projectilesPlayer; // 玩家子弹列表, 使用指针方便管理,防止堆栈数据过多
     //创建敌机容器（列表）
     std::list<Enemy*> enemies;
+    //创建敌机子弹容器（列表）
+    std::list<ProjectileEnemy*> projectilesEnemy;
 
     std::mt19937 gen; // 随机数生成器
     std::uniform_real_distribution<float> dis; // 随机数分布器（均匀分布）
