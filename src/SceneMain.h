@@ -32,6 +32,7 @@ public:
     void shootPlayer();
     void updateProjectilesPlayer(float deltaTime);
     void renderProjectilesPlayer();
+    void updatePlayer(float deltaTime);
 
     void spawnEnemy();
     void updateEnemies(float deltaTime);
@@ -45,6 +46,7 @@ public:
 private:
     Game &game; // 引用游戏实例
     Player player; // 玩家对象
+    bool isGameOver = false; // 游戏结束标志
 
     //创建玩家子弹模板
     ProjectilePlayer projectilePlayerTemplate;

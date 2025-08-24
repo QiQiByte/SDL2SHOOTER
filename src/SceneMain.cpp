@@ -67,6 +67,7 @@ void SceneMain::update(float deltaTime)
      spawnEnemy(); // 生成敌人
     updateEnemies(deltaTime);
     updateProjectilesEnemy(deltaTime);
+    updatePlayer(deltaTime);
 
 }
 
@@ -76,8 +77,10 @@ void SceneMain::render()
     renderProjectilesPlayer();
 
     // 渲染玩家
-    SDL_Rect playerRect = { static_cast<int>(player.position.x), static_cast<int>(player.position.y), player.width, player.height };
-    SDL_RenderCopy(game.getRenderer(), player.texture, NULL, &playerRect);
+    if (!isGameOver) {
+        SDL_Rect playerRect = { static_cast<int>(player.position.x), static_cast<int>(player.position.y), player.width, player.height };
+        SDL_RenderCopy(game.getRenderer(), player.texture, NULL, &playerRect);
+    }
 
     // 渲染敌人
     renderEnemies();
@@ -152,6 +155,8 @@ SceneMain::~SceneMain()
 }
 void SceneMain::keyboardControls(float deltaTime)
 {
+    if (isGameOver) return; // 游戏结束后不处理输入
+
     auto keyboardState = SDL_GetKeyboardState(NULL);
 
     // 使用WASD控制玩家移动
@@ -254,7 +259,7 @@ void SceneMain::updateEnemies(float deltaTime)
             delete enemy; // 释放内存
             it = enemies.erase(it);
         }else{
-            if (currentTime - enemy->lastShotTime >= enemy->coolDown) {
+            if (currentTime - enemy->lastShotTime >= enemy->coolDown && !isGameOver) {
 
                 shootEnemy(enemy);
 
@@ -315,7 +320,21 @@ void SceneMain::updateProjectilesEnemy(float deltaTime)
             it = projectilesEnemy.erase(it);
             // SDL_Log("enemy projectile removed");
         }else{
-            ++it;
+            bool collisionDetected = false;
+            SDL_Rect playerRect = { static_cast<int>(player.position.x), static_cast<int>(player.position.y), player.width, player.height };
+            SDL_Rect projectileRect = { static_cast<int>(projectile->position.x), static_cast<int>(projectile->position.y), projectile->width, projectile->height };
+            if (SDL_HasIntersection(&playerRect, &projectileRect) && !isGameOver) {
+                // 处理碰撞，例如减少玩家生命值，删除子弹等
+                player.currentHealth -= projectile->damage;
+                std::cout << "Player hit! Current health: " << player.currentHealth << std::endl;
+                // 删除子弹
+                delete projectile;
+                it = projectilesEnemy.erase(it);
+                collisionDetected = true;
+            }
+            if (!collisionDetected) {
+                ++it;
+            }
         }
 
     }
@@ -334,4 +353,26 @@ void SceneMain::renderProjectilesEnemy()
 void SceneMain::explodeEnemy(Enemy *enemy)
 {
     delete enemy; // 释放内存
+}
+void SceneMain::updatePlayer(float deltaTime)
+{
+    if (isGameOver) return; // 游戏结束后不更新玩家状态
+
+    if (player.currentHealth <= 0) {
+        std::cout << "Player destroyed! Game Over!" << std::endl;
+        isGameOver = true;
+        // 这里可以添加游戏结束的逻辑，比如切换到游戏结束场景
+    }
+
+
+    for(auto enemy : enemies) {
+        SDL_Rect enemyRect = { static_cast<int>(enemy->position.x), static_cast<int>(enemy->position.y), enemy->width, enemy->height };
+        SDL_Rect playerRect = { static_cast<int>(player.position.x), static_cast<int>(player.position.y), player.width, player.height };
+        if (SDL_HasIntersection(&enemyRect, &playerRect)) {
+            // 处理碰撞，例如减少玩家生命值，删除子弹等
+            player.currentHealth -= 1;
+            enemy->currentHealth = 0; // 碰撞后敌机也被摧毁
+            std::cout << "Player hit by enemy! Current health: " << player.currentHealth << std::endl;
+        }
+    }
 }
